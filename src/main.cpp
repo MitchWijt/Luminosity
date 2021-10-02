@@ -1,6 +1,8 @@
 #include <iostream>
+
 #include "Scene/Scene.hpp"
 #include "Shaders/Shader.hpp"
+
 
 
 void processInput(GLFWwindow* window)

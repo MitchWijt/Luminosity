@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Scene.hpp"
 
 const GLint WIDTH = 800, HEIGHT = 600;

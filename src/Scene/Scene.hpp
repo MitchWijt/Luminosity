@@ -1,6 +1,4 @@
 #pragma once
-
-#include <iostream>
 #include "../lheaders.hpp"
 
 void instantiateGLFW();
