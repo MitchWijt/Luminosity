@@ -5,19 +5,33 @@
 
 
 
-void processInput(GLFWwindow* window)
+float offsetX = 0.0f;
+
+void processInput(GLFWwindow* window, Shaders* shader)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+	
+	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	{
+		offsetX += 0.01f;
+		shader->Set1FUniform("offsetX", offsetX);
+	}
+	
+	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	{
+		offsetX -= 0.01f;
+		shader->Set1FUniform("offsetX", offsetX);
+	}
 }
 
 int main() {
     GLFWwindow* window = createWindow();
     
     float vertices[] = {
-		1.0f, -0.5f, 0.0f,	1.0f, 0.0f, 1.0f,
-		0.0f, -0.5f, 0.0f,	1.0f, 0.0f, 1.0f,
-		0.5f, 0.5f, 0.0f,	1.0f, 0.0f, 1.0f,
+		1.0f, -0.5f, 0.0f,	1.0f, 0.0f, 0.0f,
+		0.0f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,
+		0.5f, 0.5f, 0.0f,	0.0f, 0.0f, 1.0f,
 		
 		-1.0f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
 		0.0f, -0.5f, 0.0f,	0.0f, 1.0f, 0.0f,
@@ -44,15 +58,16 @@ int main() {
 	
 	Shaders* shader = new Shaders();
 	unsigned int shaderProgram = shader->CreateShaderProgram();
-	
+		
     while(!glfwWindowShouldClose(window)) {
         glfwPollEvents();
-        processInput(window);
+        processInput(window, shader);
         
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 		
 		glUseProgram(shaderProgram);
+			
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
         
