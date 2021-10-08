@@ -25,7 +25,7 @@ unsigned int Shaders::CreateShaderProgram()
     return program;
 }
 
-void Shaders::Set1FUniform(const GLchar* variable, float value)
+void Shaders::Set1fUniform(const GLchar* variable, float value)
 {
     int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
     glUniform1f(uniformLocation, value);
@@ -35,6 +35,12 @@ void Shaders::Set4fUniform(const GLchar* variable, glm::vec4 value)
 {
     int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
     glUniform4f(uniformLocation, value.x, value.y, value.z, value.w);
+}
+
+void Shaders::Set1iUniform(const GLchar* variable, unsigned int value)
+{
+    int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
+    glUniform1i(uniformLocation, value);
 }
 
 unsigned int Shaders::CompileShader(unsigned int shaderType, std::string &shaderSource)
