@@ -8,8 +8,9 @@ public:
     Shaders();
     unsigned int CreateShaderProgram();
     
-    void Set1FUniform(const GLchar* variable, float value);
+    void Set1fUniform(const GLchar* variable, float value);
     void Set4fUniform(const GLchar* variable, glm::vec4 value);
+    void Set1iUniform(const GLchar* variable, unsigned int value);
 private:
     unsigned int CompileShader(unsigned int shaderType, std::string& shaderSource);
 private:
