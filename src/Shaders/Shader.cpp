@@ -4,8 +4,8 @@
 #include "../FileParser/FileParser.hpp"
 
 Shaders::Shaders() {
-    Shaders::m_vertexShaderSource = ParseContentsFromFilePath("Shaders/VertexShader.shader");
-    Shaders::m_fragmentShaderSource = ParseContentsFromFilePath("Shaders/FragmentShader.shader");
+    Shaders::m_vertexShaderSource = ParseContentsFromFilePath("Shaders/VertexShader.glsl");
+    Shaders::m_fragmentShaderSource = ParseContentsFromFilePath("Shaders/FragmentShader.glsl");
 }
 
 unsigned int Shaders::CreateShaderProgram()
@@ -41,6 +41,12 @@ void Shaders::Set1iUniform(const GLchar* variable, unsigned int value)
 {
     int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
     glUniform1i(uniformLocation, value);
+}
+
+void Shaders::SetMatrix4fUniform(const GLchar* variable, glm::mat4 value)
+{
+    int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 unsigned int Shaders::CompileShader(unsigned int shaderType, std::string &shaderSource)

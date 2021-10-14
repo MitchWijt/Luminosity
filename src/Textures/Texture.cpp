@@ -23,7 +23,7 @@ Texture2D::~Texture2D() {
     stbi_image_free(Texture2D::m_data);
 }
 
-void Texture2D::Load(const char *path, unsigned int colorType)
+void Texture2D::Load(const char* path, unsigned int colorType)
 {
     int width;
     int height;
@@ -33,7 +33,7 @@ void Texture2D::Load(const char *path, unsigned int colorType)
     unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
     
     if(!data)
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout << "Failed to load texture at path: " << path << std::endl;
     
     Texture2D::m_data = data;
     glTexImage2D(GL_TEXTURE_2D, 0, colorType, width, height, 0, colorType, GL_UNSIGNED_BYTE, data);

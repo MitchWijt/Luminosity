@@ -31,6 +31,7 @@ GLFWwindow* createWindow()
     instantiateGLFW();
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Luminosity", nullptr, nullptr);
     instantiateGLEW(window);
+    glEnable(GL_DEPTH_TEST);
     
     int screenWidth, screenHeight;
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
@@ -42,8 +43,6 @@ GLFWwindow* createWindow()
         
         return (GLFWwindow*)-1;
     }
-    
-  
     
     glViewport(0, 0, screenWidth, screenHeight);
     
