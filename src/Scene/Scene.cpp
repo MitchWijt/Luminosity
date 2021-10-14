@@ -1,4 +1,7 @@
 #include <iostream>
+#include "../../libs/imgui/imgui.h"
+#include "../../libs/imgui/imgui_impl_glfw.h"
+#include "../../libs/imgui/imgui_impl_opengl3.h"
 #include "Scene.hpp"
 
 const GLint WIDTH = 800, HEIGHT = 600;
@@ -26,11 +29,22 @@ int instantiateGLEW(GLFWwindow* window)
     return 1;
 }
 
+void instantiateImGUI(GLFWwindow* window)
+{
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 330 core");
+    ImGui::StyleColorsDark();
+}
+
 GLFWwindow* createWindow()
 {
     instantiateGLFW();
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Luminosity", nullptr, nullptr);
     instantiateGLEW(window);
+    instantiateImGUI(window);
+    
     glEnable(GL_DEPTH_TEST);
     
     int screenWidth, screenHeight;
