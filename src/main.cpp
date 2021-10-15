@@ -4,37 +4,39 @@
 #include "Shaders/Shader.hpp"
 #include "Textures/Texture.hpp"
 #include "Utils/Math.hpp"
+#include "Utils/AssetManager.hpp"
 
 #include "../libs/imgui/imgui.h"
 #include "../libs/imgui/imgui_impl_glfw.h"
 #include "../libs/imgui/imgui_impl_opengl3.h"
 
 
-float offsetX = 0.0f;
 struct GameLoopVariables {
 	bool rotateX = true;
 	bool rotateY;
 	bool rotateZ;
 	float rotationDegrees;
 	float offsetX;
+	int windowWidth = 800;
+	int windowHeight = 600;
+	bool texture1Checked;
+	bool texture2Checked;
+	std::string texture1Path = "../images/brickwall.jpeg";
+	std::string texture2Path = "../images/defqon.png";
 };
+
+struct GameLoopVariables gameVariables;
+
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+	glfwGetWindowSize(window, &gameVariables.windowWidth, &gameVariables.windowHeight);
+	glViewport(0, 0, width, height);
+}
 
 void processInput(GLFWwindow* window, Shaders shader)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-	
-	if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
-	{
-		offsetX += 0.01f;
-		shader.Set1fUniform("offsetX", offsetX);
-	}
-	
-	if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
-	{
-		offsetX -= 0.01f;
-		shader.Set1fUniform("offsetX", offsetX);
-	}
 }
 
 int main() {
@@ -106,31 +108,31 @@ int main() {
 	unsigned int shaderProgram = shader.CreateShaderProgram();
 	
 	Texture2D texture1 = Texture2D();
-	texture1.Load("../images/brickwall.jpeg", GL_RGB);
+	texture1.Load(gameVariables.texture1Path.c_str(), GL_RGB);
 	
 	Texture2D texture2 = Texture2D();
-	texture2.Load("../images/defqon.png", GL_RGBA);
+	texture2.Load(gameVariables.texture2Path.c_str(), GL_RGBA);
 	
 	glUseProgram(shaderProgram);
 	shader.Set1iUniform("ourTexture1", 0);
 	shader.Set1iUniform("ourTexture2", 1);
 	
-	struct GameLoopVariables gameVariables;
-			
+	AssetManager assets = AssetManager("../images");
+					
     while(!glfwWindowShouldClose(window)) {
+		processInput(window, shader);
+		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
+		glfwSetWindowSizeCallback(window, window_size_callback);
         glfwPollEvents();
 
-        processInput(window, shader);
-        
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		glUseProgram(shaderProgram);
-		
 		
 		texture1.Bind(GL_TEXTURE0);
 		texture2.Bind(GL_TEXTURE1);
@@ -141,13 +143,12 @@ int main() {
 		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(0.0f, 0.0f, -3.0f));
 		shader.SetMatrix4fUniform("viewMatrix", viewMatrix);
 		
-		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, 800.0f, 600.0f, 0.1f, 100.0f);
+		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
 		shader.SetMatrix4fUniform("projectionMatrix", projectionMatrix);
 		
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 	
-		
 		ImGui::Begin("Sidebar");
 		ImGui::Text("Rotation Degrees");
 		ImGui::SliderFloat("", &gameVariables.rotationDegrees, 0.0f, 360.0f);
@@ -157,7 +158,36 @@ int main() {
 		ImGui::Checkbox("Z", &gameVariables.rotateZ);
 		ImGui::End();
 		
-	
+		ImGui::Begin("Textures");
+		ImGui::BeginChild("Scrolling");
+		ImGui::Text("Texture 1");
+		for (int i = 0; i < assets.m_filePaths.size(); i++)
+		{
+			std::string filePath = assets.m_filePaths[i].filePath;
+			std::string fileName = assets.m_filePaths[i].fileName;
+			std::string label = fileName + std::to_string(i);
+			
+			if(ImGui::Button(label.c_str()))
+			{
+				texture1.Load(filePath.c_str(), GL_RGBA);
+				texture1.Bind(GL_TEXTURE1);
+			}
+		};
+		
+		ImGui::Text("Texture 2");
+		for (int i = 0; i < assets.m_filePaths.size(); i++)
+		{
+			std::string filePath = assets.m_filePaths[i].filePath;
+			std::string fileName = assets.m_filePaths[i].fileName;
+			if(ImGui::Button(fileName.c_str()))
+			{
+				texture2.Load(filePath.c_str(), GL_RGBA);
+				texture2.Bind(GL_TEXTURE1);
+			}
+		};
+		ImGui::EndChild();
+		ImGui::End();
+		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
