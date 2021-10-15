@@ -4,7 +4,7 @@
 #include "../../libs/imgui/imgui_impl_opengl3.h"
 #include "Scene.hpp"
 
-const GLint WIDTH = 800, HEIGHT = 600;
+const GLint WIDTH = 1200, HEIGHT = 900;
 
 void instantiateGLFW()
 {

@@ -23,14 +23,16 @@ Texture2D::~Texture2D() {
     stbi_image_free(Texture2D::m_data);
 }
 
-void Texture2D::Load(const char* path, unsigned int colorType)
+void Texture2D::Load(const std::string& path, const std::string& extension)
 {
     int width;
     int height;
     int nrChannels;
+    
+    unsigned int colorType = extension == ".jpeg" || extension == ".jpg" ? GL_RGB : GL_RGBA;
 
     stbi_set_flip_vertically_on_load(true);  
-    unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     
     if(!data)
         std::cout << "Failed to load texture at path: " << path << std::endl;
