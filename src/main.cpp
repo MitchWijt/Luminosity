@@ -15,10 +15,13 @@ struct GameLoopVariables {
 	bool rotateX = true;
 	bool rotateY;
 	bool rotateZ;
+	float xPos;
+	float yPos;
+	float zPos = -3.0f;
 	float rotationDegrees;
 	float offsetX;
-	int windowWidth = 800;
-	int windowHeight = 600;
+	int windowWidth = 1200;
+	int windowHeight = 800;
 	bool texture1Checked;
 	bool texture2Checked;
 	std::string texture1Path = "../images/brickwall.jpeg";
@@ -29,8 +32,8 @@ struct GameLoopVariables gameVariables;
 
 void window_size_callback(GLFWwindow* window, int width, int height)
 {
-	glfwGetWindowSize(window, &gameVariables.windowWidth, &gameVariables.windowHeight);
-	glViewport(0, 0, width, height);
+	gameVariables.windowWidth = width;
+	gameVariables.windowHeight = height;
 }
 
 void processInput(GLFWwindow* window, Shaders shader)
@@ -107,15 +110,11 @@ int main() {
 	Shaders shader = Shaders();
 	unsigned int shaderProgram = shader.CreateShaderProgram();
 	
-	Texture2D texture1 = Texture2D();
-	texture1.Load(gameVariables.texture1Path.c_str(), GL_RGB);
-	
-	Texture2D texture2 = Texture2D();
-	texture2.Load(gameVariables.texture2Path.c_str(), GL_RGBA);
+	Texture2D texture = Texture2D();
+	texture.Load(gameVariables.texture1Path, ".jpeg");
 	
 	glUseProgram(shaderProgram);
-	shader.Set1iUniform("ourTexture1", 0);
-	shader.Set1iUniform("ourTexture2", 1);
+	shader.Set1iUniform("ourTexture", 0);
 	
 	AssetManager assets = AssetManager("../images");
 					
@@ -134,13 +133,12 @@ int main() {
 		
 		glUseProgram(shaderProgram);
 		
-		texture1.Bind(GL_TEXTURE0);
-		texture2.Bind(GL_TEXTURE1);
-		
+		texture.Bind(GL_TEXTURE0);
+				
 		glm::mat4 modelMatrix = GetRotationMatrix(gameVariables.rotationDegrees, glm::vec3((float)gameVariables.rotateX, (float)gameVariables.rotateY, (float)gameVariables.rotateZ));
 		shader.SetMatrix4fUniform("modelMatrix", modelMatrix);
 		
-		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(0.0f, 0.0f, -3.0f));
+		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos, gameVariables.yPos, gameVariables.zPos));
 		shader.SetMatrix4fUniform("viewMatrix", viewMatrix);
 		
 		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
@@ -156,33 +154,25 @@ int main() {
 		ImGui::Checkbox("X", &gameVariables.rotateX);
 		ImGui::Checkbox("Y", &gameVariables.rotateY);
 		ImGui::Checkbox("Z", &gameVariables.rotateZ);
+		
+		ImGui::SliderFloat("X Pos", &gameVariables.xPos, -10.0f, 10.0f);
+		ImGui::SliderFloat("Y Pos", &gameVariables.yPos, -10.0f, 10.0f);
+		ImGui::SliderFloat("Z Pos", &gameVariables.zPos, -10.0f, 10.0f);
+
 		ImGui::End();
 		
 		ImGui::Begin("Textures");
 		ImGui::BeginChild("Scrolling");
-		ImGui::Text("Texture 1");
+		ImGui::Text("Texture");
 		for (int i = 0; i < assets.m_filePaths.size(); i++)
 		{
-			std::string filePath = assets.m_filePaths[i].filePath;
-			std::string fileName = assets.m_filePaths[i].fileName;
-			std::string label = fileName + std::to_string(i);
-			
-			if(ImGui::Button(label.c_str()))
-			{
-				texture1.Load(filePath.c_str(), GL_RGBA);
-				texture1.Bind(GL_TEXTURE1);
-			}
-		};
-		
-		ImGui::Text("Texture 2");
-		for (int i = 0; i < assets.m_filePaths.size(); i++)
-		{
+			std::string fileExtension = assets.m_filePaths[i].extension;
 			std::string filePath = assets.m_filePaths[i].filePath;
 			std::string fileName = assets.m_filePaths[i].fileName;
 			if(ImGui::Button(fileName.c_str()))
 			{
-				texture2.Load(filePath.c_str(), GL_RGBA);
-				texture2.Bind(GL_TEXTURE1);
+				texture.Load(filePath, fileExtension);
+				texture.Bind(GL_TEXTURE0);
 			}
 		};
 		ImGui::EndChild();
