@@ -5,6 +5,7 @@
 #include "Textures/Texture.hpp"
 #include "Utils/Math.hpp"
 #include "Utils/AssetManager.hpp"
+#include "Renderer/RenderApi.hpp"
 
 #include "../libs/imgui/imgui.h"
 #include "../libs/imgui/imgui_impl_glfw.h"
@@ -24,8 +25,7 @@ struct GameLoopVariables {
 	int windowHeight = 800;
 	bool texture1Checked;
 	bool texture2Checked;
-	std::string texture1Path = "../images/brickwall.jpeg";
-	std::string texture2Path = "../images/defqon.png";
+	std::string texturePath = "../assets/brickwall.jpeg";
 };
 
 struct GameLoopVariables gameVariables;
@@ -45,78 +45,19 @@ void processInput(GLFWwindow* window, Shaders shader)
 int main() {
     GLFWwindow* window = createWindow();
 	
-    float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-	
-	unsigned int VAO;
-	glGenVertexArrays(1, &VAO);
-	
-	unsigned int VBO;
-	glGenBuffers(1, &VBO);
-	
-	glBindVertexArray(VAO);
-	
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*) (3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	
+	RenderApi renderer = RenderApi();
+	renderer.CreateCube();
 	
 	Shaders shader = Shaders();
 	unsigned int shaderProgram = shader.CreateShaderProgram();
 	
 	Texture2D texture = Texture2D();
-	texture.Load(gameVariables.texture1Path, ".jpeg");
+	texture.Load(gameVariables.texturePath, ".jpeg");
 	
 	glUseProgram(shaderProgram);
 	shader.Set1iUniform("ourTexture", 0);
 	
-	AssetManager assets = AssetManager("../images");
+	AssetManager assets = AssetManager("../assets");
 					
     while(!glfwWindowShouldClose(window)) {
 		processInput(window, shader);
@@ -144,8 +85,7 @@ int main() {
 		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
 		shader.SetMatrix4fUniform("projectionMatrix", projectionMatrix);
 		
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		renderer.DrawCube();
 	
 		ImGui::Begin("Sidebar");
 		ImGui::Text("Rotation Degrees");
