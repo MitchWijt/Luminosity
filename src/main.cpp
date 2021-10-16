@@ -22,9 +22,10 @@ struct GameLoopVariables {
 	float rotationDegrees;
 	float offsetX;
 	int windowWidth = 1200;
-	int windowHeight = 800;
+	int windowHeight = 900;
 	bool texture1Checked;
 	bool texture2Checked;
+	float ourColors[3]{1.0f, 1.0f, 1.0f};
 	std::string texturePath = "../assets/brickwall.jpeg";
 };
 
@@ -79,12 +80,19 @@ int main() {
 		glm::mat4 modelMatrix = GetRotationMatrix(gameVariables.rotationDegrees, glm::vec3((float)gameVariables.rotateX, (float)gameVariables.rotateY, (float)gameVariables.rotateZ));
 		shader.SetMatrix4fUniform("modelMatrix", modelMatrix);
 		
-		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos, gameVariables.yPos, gameVariables.zPos));
+		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos - 1.0, gameVariables.yPos, gameVariables.zPos));
 		shader.SetMatrix4fUniform("viewMatrix", viewMatrix);
 		
 		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
 		shader.SetMatrix4fUniform("projectionMatrix", projectionMatrix);
 		
+		shader.Set3fUniform("ourColor", glm::vec3(gameVariables.ourColors[0], gameVariables.ourColors[1], gameVariables.ourColors[2]));
+		
+		renderer.DrawCube();
+		
+		
+		glm::mat4 viewMatrix2 = GetTranslationMatrix(glm::vec3(gameVariables.xPos + 1.0, gameVariables.yPos, gameVariables.zPos));
+		shader.SetMatrix4fUniform("viewMatrix", viewMatrix2);
 		renderer.DrawCube();
 	
 		ImGui::Begin("Sidebar");
@@ -98,7 +106,9 @@ int main() {
 		ImGui::SliderFloat("X Pos", &gameVariables.xPos, -10.0f, 10.0f);
 		ImGui::SliderFloat("Y Pos", &gameVariables.yPos, -10.0f, 10.0f);
 		ImGui::SliderFloat("Z Pos", &gameVariables.zPos, -10.0f, 10.0f);
-
+		
+		ImGui::ColorEdit3("Color", (float*)&gameVariables.ourColors);
+		
 		ImGui::End();
 		
 		ImGui::Begin("Textures");
