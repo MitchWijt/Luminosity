@@ -12,6 +12,8 @@ public:
     
     
 public:
+    unsigned int m_width;
+    unsigned int m_height;
     unsigned int m_textureId;
     unsigned char* m_data;
 };

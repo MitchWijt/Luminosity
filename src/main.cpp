@@ -55,6 +55,9 @@ int main() {
 	Texture2D texture = Texture2D();
 	texture.Load(gameVariables.texturePath, ".jpeg");
 	
+	Texture2D folderTexture = Texture2D();
+	folderTexture.Load("../assets/folder.png", ".png");
+	
 	glUseProgram(shaderProgram);
 	shader.Set1iUniform("ourTexture", 0);
 	
@@ -114,6 +117,13 @@ int main() {
 		ImGui::Begin("Textures");
 		ImGui::BeginChild("Scrolling");
 		ImGui::Text("Texture");
+		
+		ImGui::Begin("OpenGL Texture Text");
+		ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f), ImVec2(0.0f, 0.0f), ImVec2(1.0, 1.0f), 10);
+		ImGui::Text("Assets");
+//		ImGui::Image((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50, 50));
+		ImGui::End();
+
 		for (int i = 0; i < assets.m_filePaths.size(); i++)
 		{
 			std::string fileExtension = assets.m_filePaths[i].extension;
