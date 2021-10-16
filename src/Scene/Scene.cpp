@@ -54,8 +54,6 @@ GLFWwindow* createWindow()
     {
         std::cout << "Failed to create window" << std::endl;
         glfwTerminate();
-        
-        return (GLFWwindow*)-1;
     }
     
     glViewport(0, 0, screenWidth, screenHeight);

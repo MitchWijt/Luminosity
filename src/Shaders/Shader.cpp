@@ -37,6 +37,13 @@ void Shaders::Set4fUniform(const GLchar* variable, glm::vec4 value)
     glUniform4f(uniformLocation, value.x, value.y, value.z, value.w);
 }
 
+void Shaders::Set3fUniform(const GLchar* variable, glm::vec3 value)
+{
+    int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
+    glUniform3f(uniformLocation, value.x, value.y, value.z);
+}
+
+
 void Shaders::Set1iUniform(const GLchar* variable, unsigned int value)
 {
     int uniformLocation = glGetUniformLocation(Shaders::m_programId, variable);
