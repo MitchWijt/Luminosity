@@ -1,17 +1,21 @@
 #include <iostream>
 #include <vector>
 
-struct File
+namespace fs = std::__fs::filesystem;
+
+struct Asset
 {
-    std::string fileName;
-    std::string filePath;
+    std::string name;
+    std::string path;
     std::string extension;
+    std::string type;
 };
 
 class AssetManager
 {
 public:
     AssetManager(const char* path);
+    std::string GetFileType(std::string& path);
 public:
-    std::vector<File> m_filePaths;
+    std::vector<Asset> m_assets;
 };
