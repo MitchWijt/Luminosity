@@ -93,7 +93,6 @@ int main() {
 		
 		renderer.DrawCube();
 		
-		
 		glm::mat4 viewMatrix2 = GetTranslationMatrix(glm::vec3(gameVariables.xPos + 1.0, gameVariables.yPos, gameVariables.zPos));
 		shader.SetMatrix4fUniform("viewMatrix", viewMatrix2);
 		renderer.DrawCube();
@@ -118,22 +117,29 @@ int main() {
 		ImGui::BeginChild("Scrolling");
 		ImGui::Text("Texture");
 		
-		ImGui::Begin("OpenGL Texture Text");
-		ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f), ImVec2(0.0f, 0.0f), ImVec2(1.0, 1.0f), 10);
-		ImGui::Text("Assets");
-//		ImGui::Image((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50, 50));
-		ImGui::End();
-
-		for (int i = 0; i < assets.m_filePaths.size(); i++)
+		for (int i = 0; i < assets.m_assets.size(); i++)
 		{
-			std::string fileExtension = assets.m_filePaths[i].extension;
-			std::string filePath = assets.m_filePaths[i].filePath;
-			std::string fileName = assets.m_filePaths[i].fileName;
-			if(ImGui::Button(fileName.c_str()))
+			std::string extension = assets.m_assets[i].extension;
+			std::string path = assets.m_assets[i].path;
+			std::string name = assets.m_assets[i].name;
+			std::string type = assets.m_assets[i].type;
+			
+			if(type == "dir")
 			{
-				texture.Load(filePath, fileExtension);
-				texture.Bind(GL_TEXTURE0);
+				if(ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f), ImVec2(0.0f, 0.0f), ImVec2(1.0, 1.0f), 10))
+				{
+					assets = AssetManager(path.c_str());
+				}
+				ImGui::Text("%s", name.c_str());
+			} else
+			{
+				if(ImGui::Button(name.c_str()))
+				{
+					texture.Load(path, extension);
+					texture.Bind(GL_TEXTURE0);
+				}
 			}
+			
 		};
 		ImGui::EndChild();
 		ImGui::End();
