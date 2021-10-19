@@ -58,6 +58,9 @@ int main() {
 	Texture2D folderTexture = Texture2D();
 	folderTexture.Load("../assets/folder.png", ".png");
 	
+	Texture2D fileTexture = Texture2D();
+	fileTexture.Load("../assets/file.png", ".png");
+	
 	glUseProgram(shaderProgram);
 	shader.Set1iUniform("ourTexture", 0);
 	
@@ -114,9 +117,6 @@ int main() {
 		ImGui::End();
 		
 		ImGui::Begin("Textures");
-		ImGui::BeginChild("Scrolling");
-		ImGui::Text("Texture");
-		
 		for (int i = 0; i < assets.m_assets.size(); i++)
 		{
 			std::string extension = assets.m_assets[i].extension;
@@ -124,24 +124,25 @@ int main() {
 			std::string name = assets.m_assets[i].name;
 			std::string type = assets.m_assets[i].type;
 			
+			ImGui::SameLine();
 			if(type == "dir")
 			{
-				if(ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f), ImVec2(0.0f, 0.0f), ImVec2(1.0, 1.0f), 10))
+				if(ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f)))
 				{
 					assets = AssetManager(path.c_str());
 				}
-				ImGui::Text("%s", name.c_str());
 			} else
 			{
-				if(ImGui::Button(name.c_str()))
+				
+				ImGui::PushID(i);
+				if(ImGui::ImageButton((void*)(intptr_t)fileTexture.m_textureId, ImVec2(50.0f, 50.0f)))
 				{
 					texture.Load(path, extension);
 					texture.Bind(GL_TEXTURE0);
 				}
+				ImGui::PopID();
 			}
-			
 		};
-		ImGui::EndChild();
 		ImGui::End();
 		
 		ImGui::Render();
