@@ -116,7 +116,8 @@ int main() {
 		
 		ImGui::End();
 		
-		ImGui::Begin("Textures");
+		// TODO:: Create a dynamic vector array, inside AssetManager class that keeps track of the folder hierachie clicked. + Add a back button to traverse through the assets
+		ImGui::Begin("Assets");
 		for (int i = 0; i < assets.m_assets.size(); i++)
 		{
 			std::string extension = assets.m_assets[i].extension;
@@ -124,10 +125,11 @@ int main() {
 			std::string name = assets.m_assets[i].name;
 			std::string type = assets.m_assets[i].type;
 			
+			if(i % 10 == 0) ImGui::NewLine();
 			ImGui::SameLine();
 			if(type == "dir")
 			{
-				if(ImGui::ImageButton((void*)(intptr_t)folderTexture.m_textureId, ImVec2(50.0f, 50.0f)))
+				if(ImGui::ImageButtonWithText((void*)(intptr_t)folderTexture.m_textureId, name.c_str(), ImVec2(50.0f, 50.0f)))
 				{
 					assets = AssetManager(path.c_str());
 				}
@@ -135,7 +137,7 @@ int main() {
 			{
 				
 				ImGui::PushID(i);
-				if(ImGui::ImageButton((void*)(intptr_t)fileTexture.m_textureId, ImVec2(50.0f, 50.0f)))
+				if(ImGui::ImageButtonWithText((void*)(intptr_t)fileTexture.m_textureId, name.c_str(), ImVec2(50.0f, 50.0f)))
 				{
 					texture.Load(path, extension);
 					texture.Bind(GL_TEXTURE0);
