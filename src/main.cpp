@@ -86,7 +86,7 @@ int main() {
 		glm::mat4 modelMatrix = GetRotationMatrix(gameVariables.rotationDegrees, glm::vec3((float)gameVariables.rotateX, (float)gameVariables.rotateY, (float)gameVariables.rotateZ));
 		shader.SetMatrix4fUniform("modelMatrix", modelMatrix);
 		
-		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos - 1.0, gameVariables.yPos, gameVariables.zPos));
+		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos, gameVariables.yPos, gameVariables.zPos));
 		shader.SetMatrix4fUniform("viewMatrix", viewMatrix);
 		
 		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
@@ -96,10 +96,6 @@ int main() {
 		
 		renderer.DrawCube();
 		
-		glm::mat4 viewMatrix2 = GetTranslationMatrix(glm::vec3(gameVariables.xPos + 1.0, gameVariables.yPos, gameVariables.zPos));
-		shader.SetMatrix4fUniform("viewMatrix", viewMatrix2);
-		renderer.DrawCube();
-	
 		ImGui::Begin("Sidebar");
 		ImGui::Text("Rotation Degrees");
 		ImGui::SliderFloat("", &gameVariables.rotationDegrees, 0.0f, 360.0f);
@@ -116,8 +112,22 @@ int main() {
 		
 		ImGui::End();
 		
-		// TODO:: Create a dynamic vector array, inside AssetManager class that keeps track of the folder hierachie clicked. + Add a back button to traverse through the assets
 		ImGui::Begin("Assets");
+		for(int i = 0; i < assets.m_visitedPaths.size(); i++)
+		{
+			std::string& dirPath = assets.m_visitedPaths[i].path;
+			std::string& dirName = assets.m_visitedPaths[i].stem;
+			
+			ImGui::SameLine();
+			if(ImGui::Button(dirName.c_str()))
+			{
+				if(dirPath != assets.m_currentPath)
+					assets.DeleteLastVisitedPath();
+				
+				assets.LoadDir(dirPath.c_str());
+			}
+		}
+
 		for (int i = 0; i < assets.m_assets.size(); i++)
 		{
 			std::string extension = assets.m_assets[i].extension;
@@ -131,7 +141,8 @@ int main() {
 			{
 				if(ImGui::ImageButtonWithText((void*)(intptr_t)folderTexture.m_textureId, name.c_str(), ImVec2(50.0f, 50.0f)))
 				{
-					assets = AssetManager(path.c_str());
+					assets.LoadDir(path.c_str());
+					assets.AddVisitedPath(path);
 				}
 			} else
 			{
