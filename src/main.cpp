@@ -4,8 +4,9 @@
 #include "Shaders/Shader.hpp"
 #include "Textures/Texture.hpp"
 #include "Utils/Math.hpp"
-#include "Utils/AssetManager.hpp"
 #include "Renderer/RenderApi.hpp"
+
+#include "../editor/panels/ContentBrowserPanel.hpp"
 
 #include "../libs/imgui/imgui.h"
 #include "../libs/imgui/imgui_impl_glfw.h"
@@ -54,17 +55,11 @@ int main() {
 	
 	Texture2D texture = Texture2D();
 	texture.Load(gameVariables.texturePath, ".jpeg");
-	
-	Texture2D folderTexture = Texture2D();
-	folderTexture.Load("../assets/folder.png", ".png");
-	
-	Texture2D fileTexture = Texture2D();
-	fileTexture.Load("../assets/file.png", ".png");
-	
+		
 	glUseProgram(shaderProgram);
 	shader.Set1iUniform("ourTexture", 0);
 	
-	AssetManager assets = AssetManager("../assets");
+	ContentBrowserPanel contentBrowser = ContentBrowserPanel();
 					
     while(!glfwWindowShouldClose(window)) {
 		processInput(window, shader);
@@ -112,51 +107,7 @@ int main() {
 		
 		ImGui::End();
 		
-		ImGui::Begin("Assets");
-		for(int i = 0; i < assets.m_visitedPaths.size(); i++)
-		{
-			std::string& dirPath = assets.m_visitedPaths[i].path;
-			std::string& dirName = assets.m_visitedPaths[i].stem;
-			
-			ImGui::SameLine();
-			if(ImGui::Button(dirName.c_str()))
-			{
-				if(dirPath != assets.m_currentPath)
-					assets.DeleteLastVisitedPath();
-				
-				assets.LoadDir(dirPath.c_str());
-			}
-		}
-
-		for (int i = 0; i < assets.m_assets.size(); i++)
-		{
-			std::string extension = assets.m_assets[i].extension;
-			std::string path = assets.m_assets[i].path;
-			std::string name = assets.m_assets[i].name;
-			std::string type = assets.m_assets[i].type;
-			
-			if(i % 10 == 0) ImGui::NewLine();
-			ImGui::SameLine();
-			if(type == "dir")
-			{
-				if(ImGui::ImageButtonWithText((void*)(intptr_t)folderTexture.m_textureId, name.c_str(), ImVec2(50.0f, 50.0f)))
-				{
-					assets.LoadDir(path.c_str());
-					assets.AddVisitedPath(path);
-				}
-			} else
-			{
-				
-				ImGui::PushID(i);
-				if(ImGui::ImageButtonWithText((void*)(intptr_t)fileTexture.m_textureId, name.c_str(), ImVec2(50.0f, 50.0f)))
-				{
-					texture.Load(path, extension);
-					texture.Bind(GL_TEXTURE0);
-				}
-				ImGui::PopID();
-			}
-		};
-		ImGui::End();
+		contentBrowser.OnImGuiRender(&texture);
 		
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
