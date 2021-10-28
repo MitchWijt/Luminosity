@@ -5,7 +5,6 @@ layout (location = 1) in vec2 aTexCoord;
 
 out vec2 texCoord;
 
-uniform float offsetX;
 uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
@@ -13,6 +12,5 @@ uniform mat4 projectionMatrix;
 void main()
 {
     texCoord = aTexCoord;
-    
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(aPos, 1.0);
 }

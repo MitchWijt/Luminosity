@@ -27,6 +27,7 @@ struct GameLoopVariables {
 	bool texture1Checked;
 	bool texture2Checked;
 	float ourColors[3]{1.0f, 1.0f, 1.0f};
+	glm::vec3 lightPos = glm::vec3(1.2, 1.0, -3.0);
 	std::string texturePath = "../assets/brickwall.jpeg";
 };
 
@@ -47,22 +48,27 @@ void processInput(GLFWwindow* window, Shaders shader)
 int main() {
     GLFWwindow* window = createWindow();
 	
-	RenderApi renderer = RenderApi();
-	renderer.CreateCube();
+	RenderApi objectRenderer = RenderApi();
+	objectRenderer.CreateCube();
 	
-	Shaders shader = Shaders();
-	unsigned int shaderProgram = shader.CreateShaderProgram();
+	RenderApi lightSourceRenderer = RenderApi();
+	lightSourceRenderer.CreateCube();
+		
+	Shaders objectShader = Shaders("Shaders/Object/VertexShader.glsl", "Shaders/Object/FragmentShader.glsl");
+	objectShader.Use();
+	
+	Shaders lightingShader = Shaders("Shaders/Lighting/VertexShader.glsl", "Shaders/Lighting/FragmentShader.glsl");
+	lightingShader.Use();
 	
 	Texture2D texture = Texture2D();
 	texture.Load(gameVariables.texturePath, ".jpeg");
 		
-	glUseProgram(shaderProgram);
-	shader.Set1iUniform("ourTexture", 0);
+	objectShader.Set1iUniform("ourTexture", 0);
 	
 	ContentBrowserPanel contentBrowser = ContentBrowserPanel();
 					
     while(!glfwWindowShouldClose(window)) {
-		processInput(window, shader);
+		processInput(window, objectShader);
 		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
@@ -71,26 +77,44 @@ int main() {
 		glfwSetWindowSizeCallback(window, window_size_callback);
         glfwPollEvents();
 
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		glUseProgram(shaderProgram);
-		
 		texture.Bind(GL_TEXTURE0);
-				
+		
+		//Object
+		objectShader.Use();
+		objectShader.Set3fUniform("objectColor", glm::vec3(1.0, 0.5, 0.31));
+		objectShader.Set3fUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
+
 		glm::mat4 modelMatrix = GetRotationMatrix(gameVariables.rotationDegrees, glm::vec3((float)gameVariables.rotateX, (float)gameVariables.rotateY, (float)gameVariables.rotateZ));
-		shader.SetMatrix4fUniform("modelMatrix", modelMatrix);
-		
+		objectShader.SetMatrix4fUniform("modelMatrix", modelMatrix);
+
 		glm::mat4 viewMatrix = GetTranslationMatrix(glm::vec3(gameVariables.xPos, gameVariables.yPos, gameVariables.zPos));
-		shader.SetMatrix4fUniform("viewMatrix", viewMatrix);
-		
+		objectShader.SetMatrix4fUniform("viewMatrix", viewMatrix);
+
 		glm::mat4 projectionMatrix = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
-		shader.SetMatrix4fUniform("projectionMatrix", projectionMatrix);
+		objectShader.SetMatrix4fUniform("projectionMatrix", projectionMatrix);
+
+		objectShader.Set3fUniform("ourColor", glm::vec3(gameVariables.ourColors[0], gameVariables.ourColors[1], gameVariables.ourColors[2]));
+
+		objectRenderer.DrawCube();
 		
-		shader.Set3fUniform("ourColor", glm::vec3(gameVariables.ourColors[0], gameVariables.ourColors[1], gameVariables.ourColors[2]));
+		//Light
+		lightingShader.Use();
 		
-		renderer.DrawCube();
+		glm::mat4 modelMatrixLight = GetScaleMatrix(glm::vec3(0.2, 0.2, 0.2));
+		lightingShader.SetMatrix4fUniform("modelMatrix", modelMatrixLight);
 		
+		glm::mat4 viewMatrixLight = GetTranslationMatrix(gameVariables.lightPos);
+		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight);
+		
+		glm::mat4 projectionMatrixLight = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
+		lightingShader.SetMatrix4fUniform("projectionMatrix", projectionMatrixLight);
+		
+		lightSourceRenderer.DrawCube();
+		
+		//UI
 		ImGui::Begin("Sidebar");
 		ImGui::Text("Rotation Degrees");
 		ImGui::SliderFloat("", &gameVariables.rotationDegrees, 0.0f, 360.0f);
