@@ -5,13 +5,15 @@
 class Shaders
 {
 public:
-    Shaders();
+    Shaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
     unsigned int CreateShaderProgram();
+    void Use();
     
     void Set1fUniform(const GLchar* variable, float value);
     void Set4fUniform(const GLchar* variable, glm::vec4 value);
     void Set3fUniform(const GLchar* variable, glm::vec3 value);
     void Set1iUniform(const GLchar* variable, unsigned int value);
+    void SetVec3(const GLchar* variable, glm::vec3 value);
     void SetMatrix4fUniform(const GLchar* variable, glm::mat4 value);
 private:
     unsigned int CompileShader(unsigned int shaderType, std::string& shaderSource);

@@ -3,9 +3,10 @@
 #include "../lheaders.hpp"
 #include "../FileParser/FileParser.hpp"
 
-Shaders::Shaders() {
-    Shaders::m_vertexShaderSource = ParseContentsFromFilePath("Shaders/VertexShader.glsl");
-    Shaders::m_fragmentShaderSource = ParseContentsFromFilePath("Shaders/FragmentShader.glsl");
+Shaders::Shaders(const std::string& vertexShaderPath, const std::string& fragmentShaderPath) {
+    Shaders::m_vertexShaderSource = ParseContentsFromFilePath(vertexShaderPath.c_str());
+    Shaders::m_fragmentShaderSource = ParseContentsFromFilePath(fragmentShaderPath.c_str());
+    CreateShaderProgram();
 }
 
 unsigned int Shaders::CreateShaderProgram()
@@ -23,6 +24,11 @@ unsigned int Shaders::CreateShaderProgram()
     
     Shaders::m_programId = program;
     return program;
+}
+
+void Shaders::Use()
+{
+    glUseProgram(m_programId);
 }
 
 void Shaders::Set1fUniform(const GLchar* variable, float value)
