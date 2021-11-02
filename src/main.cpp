@@ -19,7 +19,7 @@ struct GameLoopVariables {
 	bool rotateZ;
 	float xPos;
 	float yPos;
-	float zPos = -5.0f;
+	float zPos = -8.0f;
 	float rotationDegrees;
 	float offsetX;
 	int windowWidth = 1200;
@@ -27,7 +27,7 @@ struct GameLoopVariables {
 	bool texture1Checked;
 	bool texture2Checked;
 	float ourColors[3]{1.0f, 1.0f, 1.0f};
-	glm::vec3 lightPos = glm::vec3(1.2, 1.0, -3.0);
+	float lightRadius = 2.0f;
 	std::string texturePath = "../assets/brickwall.jpeg";
 };
 
@@ -82,16 +82,21 @@ int main() {
 		
 		texture.Bind(GL_TEXTURE0);
 		
-		float lightX = sin(glfwGetTime()) * 1.0f;
-		float lightY = 0.0f;
-		float lightZ = -5.0f + (cos(glfwGetTime()) * 2.0f);
+		float lightX = gameVariables.lightRadius * sin(glfwGetTime());
+		float lightY = gameVariables.yPos;
+		float lightZ = gameVariables.zPos + cos(glfwGetTime()); 
 		
 		glm::vec3 lightPos = glm::vec3(lightX, lightY, lightZ);
+		
+		float lightX2 = 0.0f;
+		float lightY2 = cos(glfwGetTime());
+		float lightZ2 = gameVariables.zPos + (gameVariables.lightRadius * sin(glfwGetTime()));
+		glm::vec3 lightPos2 = glm::vec3(lightX2, lightY2, lightZ2);
 		
 		//Object
 		objectShader.Use();
 		objectShader.Set3fUniform("lightPos", lightPos);
-		objectShader.Set3fUniform("objectColor", glm::vec3(1.0, 0.5, 0.31));
+		objectShader.Set3fUniform("lightPos2", lightPos2);
 		objectShader.Set3fUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
 
 		glm::mat4 modelMatrix = GetRotationMatrix(gameVariables.rotationDegrees, glm::vec3((float)gameVariables.rotateX, (float)gameVariables.rotateY, (float)gameVariables.rotateZ));
@@ -107,17 +112,25 @@ int main() {
 
 		objectRenderer.DrawCube();
 		
-		//Light
+		//Light 1
 		lightingShader.Use();
 		
 		glm::mat4 modelMatrixLight = GetScaleMatrix(glm::vec3(0.2, 0.2, 0.2));
-		lightingShader.SetMatrix4fUniform("modelMatrixL", modelMatrixLight);
+		lightingShader.SetMatrix4fUniform("modelMatrix", modelMatrixLight);
 		
 		glm::mat4 viewMatrixLight = GetTranslationMatrix(lightPos);
-		lightingShader.SetMatrix4fUniform("viewMatrixL", viewMatrixLight);
+		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight);
 		
 		glm::mat4 projectionMatrixLight = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
-		lightingShader.SetMatrix4fUniform("projectionMatrixL", projectionMatrixLight);
+		lightingShader.SetMatrix4fUniform("projectionMatrix", projectionMatrixLight);
+		
+		lightSourceRenderer.DrawCube();
+		
+		//Light 2
+		lightingShader.Use();
+		
+		glm::mat4 viewMatrixLight2 = GetTranslationMatrix(lightPos2);
+		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight2);
 		
 		lightSourceRenderer.DrawCube();
 		
@@ -133,6 +146,8 @@ int main() {
 		ImGui::SliderFloat("X Pos", &gameVariables.xPos, -10.0f, 10.0f);
 		ImGui::SliderFloat("Y Pos", &gameVariables.yPos, -10.0f, 10.0f);
 		ImGui::SliderFloat("Z Pos", &gameVariables.zPos, -10.0f, 10.0f);
+		
+		ImGui::SliderFloat("Light Radius", &gameVariables.lightRadius, -10.0f, 10.0f);
 		
 		ImGui::ColorEdit3("Color", (float*)&gameVariables.ourColors);
 		
