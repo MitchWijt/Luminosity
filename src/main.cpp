@@ -19,7 +19,7 @@ struct GameLoopVariables {
 	bool rotateZ;
 	float xPos;
 	float yPos;
-	float zPos = -3.0f;
+	float zPos = -5.0f;
 	float rotationDegrees;
 	float offsetX;
 	int windowWidth = 1200;
@@ -82,8 +82,15 @@ int main() {
 		
 		texture.Bind(GL_TEXTURE0);
 		
+		float lightX = sin(glfwGetTime()) * 1.0f;
+		float lightY = 0.0f;
+		float lightZ = -5.0f + (cos(glfwGetTime()) * 2.0f);
+		
+		glm::vec3 lightPos = glm::vec3(lightX, lightY, lightZ);
+		
 		//Object
 		objectShader.Use();
+		objectShader.Set3fUniform("lightPos", lightPos);
 		objectShader.Set3fUniform("objectColor", glm::vec3(1.0, 0.5, 0.31));
 		objectShader.Set3fUniform("lightColor", glm::vec3(1.0, 1.0, 1.0));
 
@@ -104,13 +111,13 @@ int main() {
 		lightingShader.Use();
 		
 		glm::mat4 modelMatrixLight = GetScaleMatrix(glm::vec3(0.2, 0.2, 0.2));
-		lightingShader.SetMatrix4fUniform("modelMatrix", modelMatrixLight);
+		lightingShader.SetMatrix4fUniform("modelMatrixL", modelMatrixLight);
 		
-		glm::mat4 viewMatrixLight = GetTranslationMatrix(gameVariables.lightPos);
-		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight);
+		glm::mat4 viewMatrixLight = GetTranslationMatrix(lightPos);
+		lightingShader.SetMatrix4fUniform("viewMatrixL", viewMatrixLight);
 		
 		glm::mat4 projectionMatrixLight = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
-		lightingShader.SetMatrix4fUniform("projectionMatrix", projectionMatrixLight);
+		lightingShader.SetMatrix4fUniform("projectionMatrixL", projectionMatrixLight);
 		
 		lightSourceRenderer.DrawCube();
 		

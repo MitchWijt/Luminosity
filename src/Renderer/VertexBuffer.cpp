@@ -9,8 +9,9 @@ void VertexBuffer::Create(unsigned int size, void* vertices)
     
     VertexBuffer::Bind();
     VertexBuffer::SetData(size, vertices);
-    VertexBuffer::SetAttribPointer(0, 3, 5 * sizeof(float), (void*)0);
-    VertexBuffer::SetAttribPointer(1, 3, 5 * sizeof(float), (void*) (3 * sizeof(float)));
+    VertexBuffer::SetAttribPointer(0, 3, 8 * sizeof(float), (void*)0);
+    VertexBuffer::SetAttribPointer(1, 2, 8 * sizeof(float), (void*) (3 * sizeof(float)));
+    VertexBuffer::SetAttribPointer(2, 3, 8 * sizeof(float), (void*) (5 * sizeof(float)));
 };
 
 void VertexBuffer::Bind()
