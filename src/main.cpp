@@ -5,6 +5,7 @@
 #include "Textures/Texture.hpp"
 #include "Renderer/RenderApi.hpp"
 #include "Entity/Cube.hpp"
+#include "Entity/Light.hpp"
 
 #include "../editor/panels/ContentBrowserPanel.hpp"
 
@@ -13,7 +14,9 @@
 #include "../libs/imgui/imgui_impl_opengl3.h"
 
 std::vector<Cube> cubes;
+std::vector<Light> lights;
 bool createEntity = false;
+bool createLight = false;
 
 void CreateEntity()
 {
@@ -21,6 +24,14 @@ void CreateEntity()
 	cubes.push_back(cube);
 	
 	createEntity = false;
+}
+
+void CreateLight()
+{
+	Light light = Light();
+	lights.push_back(light);
+	
+	createLight = false;
 }
 
 //void window_size_callback(GLFWwindow* window, int width, int height)
@@ -54,17 +65,8 @@ int main() {
 		if(createEntity)
 			CreateEntity();
 		
-		
-//		float lightX = gameVariables.lightRadius * sin(glfwGetTime());
-//		float lightY = gameVariables.yPos;
-//		float lightZ = gameVariables.zPos + cos(glfwGetTime());
-//
-//		glm::vec3 lightPos = glm::vec3(lightX, lightY, lightZ);
-//
-//		float lightX2 = 0.0f;
-//		float lightY2 = cos(glfwGetTime());
-//		float lightZ2 = gameVariables.zPos + (gameVariables.lightRadius * sin(glfwGetTime()));
-//		glm::vec3 lightPos2 = glm::vec3(lightX2, lightY2, lightZ2);
+		if(createLight)
+			CreateLight();
 		
 		if(cubes.size() > 0) {
 			for(int i = 0; i < cubes.size(); i++)
@@ -72,36 +74,36 @@ int main() {
 				cubes[i].Draw();
 			}
 		}
-				
-		//Light 1
-//		lightingShader.Use();
-//
-//		glm::mat4 modelMatrixLight = GetScaleMatrix(glm::vec3(0.2, 0.2, 0.2));
-//		lightingShader.SetMatrix4fUniform("modelMatrix", modelMatrixLight);
-//
-//		glm::mat4 viewMatrixLight = GetTranslationMatrix(lightPos);
-//		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight);
-//
-//		glm::mat4 projectionMatrixLight = GetProjectionMatrix(45.0f, gameVariables.windowWidth, gameVariables.windowHeight, 0.1f, 100.0f);
-//		lightingShader.SetMatrix4fUniform("projectionMatrix", projectionMatrixLight);
-//
-//		lightSourceRenderer.DrawCube();
 		
-		//Light 2
-//		lightingShader.Use();
-//
-//		glm::mat4 viewMatrixLight2 = GetTranslationMatrix(lightPos2);
-//		lightingShader.SetMatrix4fUniform("viewMatrix", viewMatrixLight2);
-//
-//		lightSourceRenderer.DrawCube();
-		
+		if(lights.size() > 0) {
+			for(int i = 0; i < lights.size(); i++)
+			{
+				float lightX = 2.0f * sin(glfwGetTime());
+				float lightY = lights[i].transform.y;
+				float lightZ = -8.0f + cos(glfwGetTime());
+
+				lights[i].transform = glm::vec3(lightX, lightY, lightZ);
+				lights[i].Draw();
+			}
+		}
+						
 		//UI
 		ImGui::Begin("Sidebar");
-				
-		if(ImGui::Button("Create Entity")){
-			createEntity = true;
-		}
 		
+		if(ImGui::BeginMenu("Create"))
+		{
+			if(ImGui::MenuItem("Entity"))
+			{
+				createEntity = true;
+			}
+			if(ImGui::MenuItem("Light"))
+			{
+				createLight = true;
+			}
+			
+			ImGui::EndMenu();
+		}
+				
 		if(cubes.size() > 0) {
 			for(int i = 0; i < cubes.size(); i++)
 			{
@@ -116,6 +118,24 @@ int main() {
 				ImGui::Text("Scale");
 				ImGui::InputFloat3("Scaling", (float*)&cubes[i].scale);
 				ImGui::ColorEdit3("Color", (float*)&cubes[i].color);
+				ImGui::PopID();
+			}
+		}
+		
+		if(lights.size() > 0) {
+			for(int i = 0; i < lights.size(); i++)
+			{
+				ImGui::PushID(i + 1);
+				ImGui::Text("Cube %i", i);
+				ImGui::SliderFloat("Rotation Degrees", &lights[i].rotationDegrees, 0.0f, 360.0f);
+				ImGui::Text("Rotation Axis");
+				ImGui::Checkbox("X", &lights[i].rotateX);
+				ImGui::Checkbox("Y", &lights[i].rotateY);
+				ImGui::Checkbox("Z", &lights[i].rotateZ);
+				ImGui::SliderFloat3("Transform", (float*)&lights[i].transform, -10.0f, 10.0f);
+				ImGui::Text("Scale");
+				ImGui::InputFloat3("Scaling", (float*)&lights[i].scale);
+				ImGui::ColorEdit3("Color", (float*)&lights[i].color);
 				ImGui::PopID();
 			}
 		}
