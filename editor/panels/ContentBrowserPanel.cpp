@@ -22,7 +22,7 @@ ContentBrowserPanel::ContentBrowserPanel()
     m_fileIcon = fileIcon.m_textureId;
 }
 
-void ContentBrowserPanel::OnImGuiRender(Texture2D* meshTexture)
+void ContentBrowserPanel::OnImGuiRender()
 {
     ImGui::Begin("Assets");
     for(int i = 0; i < g_assets.m_visitedPaths.size(); i++)
@@ -62,8 +62,8 @@ void ContentBrowserPanel::OnImGuiRender(Texture2D* meshTexture)
             ImGui::PushID(i);
             if(ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f)))
             {
-                meshTexture->Load(path, extension);
-                meshTexture->Bind(GL_TEXTURE0);
+//                meshTexture->Load(path, extension);
+//                meshTexture->Bind(GL_TEXTURE0);
             }
             ImGui::PopID();
         }

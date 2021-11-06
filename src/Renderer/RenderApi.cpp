@@ -3,51 +3,6 @@
 #include "VertexBuffer.hpp"
 #include "RenderApi.hpp"
 
-float cubeVertices[] {
-    -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     0.0f, 0.0f, -1.0f,
-    0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     0.0f, 0.0f, -1.0f,
-    0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f, 0.0f, -1.0f,
-    0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f, 0.0f, -1.0f,
-    -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,     0.0f, 0.0f, -1.0f,
-    -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     0.0f, 0.0f, -1.0f,
-
-    -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-    0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f, 0.0f, 1.0f,
-    0.5f,  0.5f,  0.5f,     1.0f, 1.0f,     0.0f, 0.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,    0.0f, 1.0f,     0.0f, 0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,     0.0f, 0.0f, 1.0f,
-
-    -0.5f,  0.5f,  0.5f,    1.0f, 0.0f,     -1.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,    1.0f, 1.0f,     -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,     -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,     -1.0f, 0.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,     -1.0f, 0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,    1.0f, 0.0f,     -1.0f, 0.0f, 0.0f,
-
-    0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f, 0.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,     0.0f, 1.0f,     1.0f, 0.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,     0.0f, 0.0f,     1.0f, 0.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     1.0f, 0.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,     0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f, -0.5f,     1.0f, 1.0f,     0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f, 0.0f,
-    0.5f, -0.5f,  0.5f,     1.0f, 0.0f,     0.0f, -1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f,    0.0f, 0.0f,     0.0f, -1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,    0.0f, 1.0f,     0.0f, -1.0f, 0.0f,
-
-    -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,     0.0f, 1.0f, 0.0f,
-    0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f, 1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f, 1.0f, 0.0f,
-    0.5f,  0.5f,  0.5f,     1.0f, 0.0f,     0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f,    0.0f, 0.0f,     0.0f, 1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,    0.0f, 1.0f,     0.0f, 1.0f, 0.0f
-};
-
-
 RenderApi::RenderApi()
 {
     VertexArray vertexArray = VertexArray();
@@ -57,13 +12,14 @@ RenderApi::RenderApi()
     RenderApi::m_vertexArray = vertexArray;
 }
 
-void RenderApi::CreateCube()
+void RenderApi::Create(std::vector<float>& vertices)
 {
+
     VertexBuffer vertexBuffer = VertexBuffer();
-    vertexBuffer.Create(sizeof(cubeVertices), cubeVertices);
+    vertexBuffer.Create(vertices.size() * sizeof(vertices[0]), vertices);
 }
  
-void RenderApi::DrawCube()
+void RenderApi::Draw()
 {
     RenderApi::m_vertexArray.Bind();
     glDrawArrays(GL_TRIANGLES, 0, 36);

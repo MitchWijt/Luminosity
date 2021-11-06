@@ -19,9 +19,9 @@ Texture2D::Texture2D()
     Texture2D::m_textureId = texture;
 }
 
-Texture2D::~Texture2D() {
-    stbi_image_free(Texture2D::m_data);
-}
+//Texture2D::~Texture2D() {
+//    stbi_image_free(Texture2D::m_data);
+//}
 
 void Texture2D::Load(const std::string& path, const std::string& extension)
 {
