@@ -8,7 +8,7 @@ public:
     ContentBrowserPanel();
     
     // TODO:: Texture process needs to be separated from the asset manager process
-    void OnImGuiRender(Texture2D* meshTexture);
+    void OnImGuiRender();
     
 private:
     unsigned int m_fileIcon;

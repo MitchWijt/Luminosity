@@ -1,7 +1,7 @@
 #include "VertexBuffer.hpp"
 #include "../lheaders.hpp"
 
-void VertexBuffer::Create(unsigned int size, void* vertices)
+void VertexBuffer::Create(unsigned long size, std::vector<float>& vertices)
 {
     unsigned int vboID;
     glGenBuffers(1, &vboID);
@@ -19,9 +19,9 @@ void VertexBuffer::Bind()
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
 };
 
-void VertexBuffer::SetData(unsigned int size, void* vertices)
+void VertexBuffer::SetData(unsigned long size, std::vector<float>& vertices)
 {
-    glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, size, static_cast<void*>(vertices.data()), GL_STATIC_DRAW);
 };
 
 void VertexBuffer::SetAttribPointer(unsigned int location, unsigned int vertexCount, unsigned int stride, void *offset)

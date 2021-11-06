@@ -1,11 +1,12 @@
 #pragma once
+#include <vector>
 
 class VertexBuffer
 {
 public:
-    void Create(unsigned int size, void* vertices);
+    void Create(unsigned long size, std::vector<float>& vertices);
     void Bind();
-    void SetData(unsigned int size, void* vertices);
+    void SetData(unsigned long size, std::vector<float>& vertices);
     void SetAttribPointer(unsigned int location, unsigned int vertexCount, unsigned int stride, void* offset);
     
 public:
