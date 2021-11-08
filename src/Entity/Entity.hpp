@@ -71,12 +71,12 @@ public:
            
     }
     
-//    void SetTexture(const std::string& path)
-//    {
-//        texture.Load(path, ".jpeg");
-//        shader.Set1iUniform("ourTexture", 0);
-//        texture.Bind(GL_TEXTURE0);
-//    }
+    void SetTexture(Shaders shader)
+    {
+        texture.Load(m_texturePath, ".jpeg");
+        shader.Set1iUniform("ourTexture", 0);
+        texture.Bind(GL_TEXTURE0);
+    }
     
     void OrbitX()
     {

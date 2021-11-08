@@ -25,6 +25,7 @@ void AssetManager::LoadDir(const std::string path)
         Asset asset;
         asset.name = entry.path().filename();
         asset.path = entry.path();
+        asset.relativePath = entry.path().relative_path();
         asset.extension = entry.path().extension();
         asset.type = type;
         

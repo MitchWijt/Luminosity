@@ -9,6 +9,7 @@ struct Asset
 {
     std::string name;
     std::string path;
+    std::string relativePath;
     std::string extension;
     std::string type;
 };

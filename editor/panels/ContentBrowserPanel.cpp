@@ -47,26 +47,36 @@ void ContentBrowserPanel::OnImGuiRender()
         std::string name = g_assets.m_assets[i].name;
         std::string type = g_assets.m_assets[i].type;
         
+        ImGui::PushID(i);
         if(i % 10 == 0) ImGui::NewLine();
         ImGui::SameLine();
+        
         if(type == "dir")
         {
-            if(ImGui::ImageButtonWithText((void*)(intptr_t)m_folderIcon, name.c_str(), ImVec2(50.0f, 50.0f)))
+            
+            ImGui::ImageButtonWithText((void*)(intptr_t)m_folderIcon, name.c_str(), ImVec2(50.0f, 50.0f));
+            if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
             {
                 g_assets.LoadDir(path.c_str());
                 g_assets.AddVisitedPath(path);
             }
         } else
         {
-            
-            ImGui::PushID(i);
-            if(ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f)))
+            ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f));
+            if (ImGui::BeginDragDropSource())
             {
+                ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", path.c_str(), path.length());
+                ImGui::EndDragDropSource();
+            }
+//            if(ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f)))
+//            {
 //                meshTexture->Load(path, extension);
 //                meshTexture->Bind(GL_TEXTURE0);
-            }
-            ImGui::PopID();
+//            }
+            
         }
+        
+        ImGui::PopID();
     };
     ImGui::End();
 }
