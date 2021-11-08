@@ -4,8 +4,7 @@
 #include "Shaders/Shader.hpp"
 #include "Textures/Texture.hpp"
 #include "Renderer/RenderApi.hpp"
-#include "Entity/Cube.hpp"
-#include "Entity/Light.hpp"
+#include "Entity/Entity.hpp"
 
 #include "../editor/panels/ContentBrowserPanel.hpp"
 
@@ -13,25 +12,19 @@
 #include "../libs/imgui/imgui_impl_glfw.h"
 #include "../libs/imgui/imgui_impl_opengl3.h"
 
-std::vector<Cube> cubes;
-std::vector<Light> lights;
+std::vector<Entity> entities;
 bool createEntity = false;
-bool createLight = false;
+bool createVertices = false;
+bool isLight = false;
+
 
 void CreateEntity()
 {
-	Cube cube = Cube();
-	cubes.push_back(cube);
+	Entity entity = Entity(isLight);
+	entities.push_back(entity);
 	
 	createEntity = false;
-}
-
-void CreateLight()
-{
-	Light light = Light();
-	lights.push_back(light);
-	
-	createLight = false;
+	isLight = false;
 }
 
 //void window_size_callback(GLFWwindow* window, int width, int height)
@@ -49,6 +42,11 @@ void processInput(GLFWwindow* window)
 int main() {
     GLFWwindow* window = createWindow();
 	ContentBrowserPanel contentBrowser = ContentBrowserPanel();
+	
+	Shaders entityShader = Shaders("Shaders/Object/VertexShader.glsl", "Shaders/Object/FragmentShader.glsl");
+	Shaders lightShader = Shaders("Shaders/Lighting/VertexShader.glsl", "Shaders/Lighting/FragmentShader.glsl");
+
+	RenderApi renderer = RenderApi();
 					
     while(!glfwWindowShouldClose(window)) {
 		processInput(window);
@@ -64,32 +62,46 @@ int main() {
 		
 		if(createEntity)
 			CreateEntity();
+			if(entities.size() == 1)
+				renderer.Create(entities[0].m_vertices);
 		
-		if(createLight)
-			CreateLight();
-		
-		if(cubes.size() > 0) {
-			for(int i = 0; i < cubes.size(); i++)
+		if(entities.size() > 0) {
+			for(int i = 0; i < entities.size(); i++)
 			{
-				cubes[i].Draw();
-			}
-		}
-		
-		if(lights.size() > 0) {
-			for(int i = 0; i < lights.size(); i++)
-			{
-				float lightX = 2.0f * sin(glfwGetTime());
-				float lightY = lights[i].transform.y;
-				float lightZ = -8.0f + cos(glfwGetTime());
-
-				lights[i].transform = glm::vec3(lightX, lightY, lightZ);
-				lights[i].Draw();
+				if(entities[i].m_hasLightComponent)
+				{
+					lightShader.Use();
+					entities[i].SetMVPMatrix(lightShader);
+					
+					if(entities[i].m_orbitX)
+						entities[i].OrbitX();
+					if(entities[i].m_orbitY)
+						entities[i].OrbitY();
+					
+					renderer.Draw();
+					
+					char posBuffer[30];
+					sprintf(posBuffer, "dirLights[%d].position", i);
+					
+					char colorBuffer[30];
+					sprintf(colorBuffer, "dirLights[%d].color", i);
+					
+					entityShader.Use();
+					entityShader.Set3fUniform(posBuffer, entities[i].m_transform);
+					entityShader.Set3fUniform(colorBuffer, entities[i].m_color);
+				} else {
+					entityShader.Use();
+					entities[i].SetMVPMatrix(entityShader);
+					renderer.Draw();
+				}
+				
+				
 			}
 		}
 						
 		//UI
 		ImGui::Begin("Sidebar");
-		
+
 		if(ImGui::BeginMenu("Create"))
 		{
 			if(ImGui::MenuItem("Entity"))
@@ -98,52 +110,48 @@ int main() {
 			}
 			if(ImGui::MenuItem("Light"))
 			{
-				createLight = true;
+				isLight = true;
+				createEntity = true;
 			}
-			
 			ImGui::EndMenu();
 		}
-				
-		if(cubes.size() > 0) {
-			for(int i = 0; i < cubes.size(); i++)
+
+		if(entities.size() > 0) {
+			for(int i = 0; i < entities.size(); i++)
 			{
+				bool isLight = entities[i].m_hasLightComponent;
+
 				ImGui::PushID(i);
-				ImGui::Text("Cube %i", i);
-				ImGui::SliderFloat("Rotation Degrees", &cubes[i].rotationDegrees, 0.0f, 360.0f);
-				ImGui::Text("Rotation Axis");
-				ImGui::Checkbox("X", &cubes[i].rotateX);
-				ImGui::Checkbox("Y", &cubes[i].rotateY);
-				ImGui::Checkbox("Z", &cubes[i].rotateZ);
-				ImGui::SliderFloat3("Transform", (float*)&cubes[i].transform, -10.0f, 10.0f);
-				ImGui::Text("Scale");
-				ImGui::InputFloat3("Scaling", (float*)&cubes[i].scale);
-				ImGui::ColorEdit3("Color", (float*)&cubes[i].color);
+
+				if(isLight)
+				{
+					ImGui::Text("Light %i", i);
+					ImGui::Checkbox("OrbitX", &entities[i].m_orbitX);
+					ImGui::Checkbox("OrbitY", &entities[i].m_orbitY);
+					ImGui::SliderFloat3("Transform", (float*)&entities[i].m_transform, -10.0f, 10.0f);
+					ImGui::ColorEdit3("Color", (float*)&entities[i].m_color);
+				} else {
+					ImGui::Text("Cube %i", i);
+					ImGui::SliderFloat("Rotation Degrees", &entities[i].m_rotationDegrees, 0.0f, 360.0f);
+					ImGui::Text("Rotation Axis");
+					ImGui::Checkbox("X", &entities[i].m_rotateX);
+					ImGui::Checkbox("Y", &entities[i].m_rotateY);
+					ImGui::Checkbox("Z", &entities[i].m_rotateZ);
+					ImGui::SliderFloat3("Transform", (float*)&entities[i].m_transform, -10.0f, 10.0f);
+					ImGui::Text("Scale");
+					ImGui::InputFloat3("Scaling", (float*)&entities[i].m_scale);
+					ImGui::ColorEdit3("Color", (float*)&entities[i].m_color);
+				}
+
+
 				ImGui::PopID();
 			}
 		}
-		
-		if(lights.size() > 0) {
-			for(int i = 0; i < lights.size(); i++)
-			{
-				ImGui::PushID(i + 1);
-				ImGui::Text("Cube %i", i);
-				ImGui::SliderFloat("Rotation Degrees", &lights[i].rotationDegrees, 0.0f, 360.0f);
-				ImGui::Text("Rotation Axis");
-				ImGui::Checkbox("X", &lights[i].rotateX);
-				ImGui::Checkbox("Y", &lights[i].rotateY);
-				ImGui::Checkbox("Z", &lights[i].rotateZ);
-				ImGui::SliderFloat3("Transform", (float*)&lights[i].transform, -10.0f, 10.0f);
-				ImGui::Text("Scale");
-				ImGui::InputFloat3("Scaling", (float*)&lights[i].scale);
-				ImGui::ColorEdit3("Color", (float*)&lights[i].color);
-				ImGui::PopID();
-			}
-		}
-		
+
 		ImGui::End();
-		
+
 		contentBrowser.OnImGuiRender();
-		
+
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
