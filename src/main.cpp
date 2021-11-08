@@ -14,7 +14,6 @@
 
 std::vector<Entity> entities;
 bool createEntity = false;
-bool createVertices = false;
 bool isLight = false;
 
 
@@ -61,9 +60,13 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		if(createEntity)
+		{
 			CreateEntity();
 			if(entities.size() == 1)
+			{
 				renderer.Create(entities[0].m_vertices);
+			}
+		}
 		
 		if(entities.size() > 0) {
 			for(int i = 0; i < entities.size(); i++)
@@ -98,7 +101,7 @@ int main() {
 				
 			}
 		}
-						
+		
 		//UI
 		ImGui::Begin("Sidebar");
 
@@ -141,6 +144,18 @@ int main() {
 					ImGui::Text("Scale");
 					ImGui::InputFloat3("Scaling", (float*)&entities[i].m_scale);
 					ImGui::ColorEdit3("Color", (float*)&entities[i].m_color);
+					
+					ImGui::Button("Texture", ImVec2(100.0f, 0.0f));
+					if(ImGui::BeginDragDropTarget())
+					{
+						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
+						{
+							std::string path = *(std::string*)payload->Data;
+							entities[i].m_texturePath = path;
+							entities[i].SetTexture(entityShader);
+						}
+						ImGui::EndDragDropTarget();
+					}
 				}
 
 
