@@ -23,7 +23,7 @@ Texture2D::~Texture2D() {
     stbi_image_free(Texture2D::m_data);
 }
 
-void Texture2D::Load(const std::string& path, const std::string& extension)
+TextureData Texture2D::Create(const std::string& path, const std::string& extension)
 {
     int width;
     int height;
@@ -31,17 +31,26 @@ void Texture2D::Load(const std::string& path, const std::string& extension)
     
     unsigned int colorType = extension == ".jpeg" || extension == ".jpg" ? GL_RGB : GL_RGBA;
 
-//    stbi_set_flip_vertically_on_load(true);  
+//    stbi_set_flip_vertically_on_load(true);
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     
     if(!data)
         std::cout << "Failed to load texture at path: " << path << std::endl;
     
-    Texture2D::m_data = data;
-    Texture2D::m_width = width;
-    Texture2D::m_height = height;
+    TextureData textureData;
+    textureData.width = width;
+    textureData.height = height;
+    textureData.colorType = colorType;
+    textureData.data = data;
     
-    glTexImage2D(GL_TEXTURE_2D, 0, colorType, width, height, 0, colorType, GL_UNSIGNED_BYTE, data);
+    Texture2D::m_data = data;
+    
+    return textureData;
+}
+
+void Texture2D::Load(TextureData textureData)
+{    
+    glTexImage2D(GL_TEXTURE_2D, 0, textureData.colorType, textureData.width, textureData.height, 0, textureData.colorType, GL_UNSIGNED_BYTE, textureData.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 

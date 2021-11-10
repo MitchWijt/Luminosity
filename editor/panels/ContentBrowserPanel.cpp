@@ -14,11 +14,13 @@ AssetManager g_assets = AssetManager(g_assetPath);
 ContentBrowserPanel::ContentBrowserPanel()
 {
     Texture2D folderIcon = Texture2D();
-    folderIcon.Load("../editor/assets/folder.png", ".png");
+    TextureData texDataFolder = folderIcon.Create("../editor/assets/folder.png", ".png");
+    folderIcon.Load(texDataFolder);
     m_folderIcon = folderIcon.m_textureId;
     
     Texture2D fileIcon = Texture2D();
-    fileIcon.Load("../editor/assets/file.png", ".png");
+    TextureData texDataFile = fileIcon.Create("../editor/assets/file.png", ".png");
+    fileIcon.Load(texDataFile);
     m_fileIcon = fileIcon.m_textureId;
 }
 
@@ -65,15 +67,9 @@ void ContentBrowserPanel::OnImGuiRender()
             ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f));
             if (ImGui::BeginDragDropSource())
             {
-                ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", path.c_str(), path.length());
+                ImGui::SetDragDropPayload("CONTENT_BROWSER_ITEM", path.c_str(), sizeof(path));
                 ImGui::EndDragDropSource();
             }
-//            if(ImGui::ImageButtonWithText((void*)(intptr_t)m_fileIcon, name.c_str(), ImVec2(50.0f, 50.0f)))
-//            {
-//                meshTexture->Load(path, extension);
-//                meshTexture->Bind(GL_TEXTURE0);
-//            }
-            
         }
         
         ImGui::PopID();

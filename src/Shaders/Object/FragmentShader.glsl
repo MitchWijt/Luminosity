@@ -30,7 +30,7 @@ void main()
         result += (CalcDirLight(dirLights[i + 1], norm, fragPos) * ourColor);
     }
     
-    FragColor = vec4(result, 1.0f);
+    FragColor = texture(ourTexture, texCoord) + vec4(result, 1.0f);
     
 }
 
