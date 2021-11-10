@@ -46,7 +46,7 @@ int main() {
 	Shaders lightShader = Shaders("Shaders/Lighting/VertexShader.glsl", "Shaders/Lighting/FragmentShader.glsl");
 
 	RenderApi renderer = RenderApi();
-					
+						
     while(!glfwWindowShouldClose(window)) {
 		processInput(window);
 		
@@ -95,6 +95,9 @@ int main() {
 				} else {
 					entityShader.Use();
 					entities[i].SetMVPMatrix(entityShader);
+					entities[i].SetTexture(entityShader);
+					
+					
 					renderer.Draw();
 				}
 				
@@ -150,9 +153,11 @@ int main() {
 					{
 						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("CONTENT_BROWSER_ITEM"))
 						{
-							std::string path = *(std::string*)payload->Data;
-							entities[i].m_texturePath = path;
-							entities[i].SetTexture(entityShader);
+							const char* path = (const char*)payload->Data;
+							
+							Texture2D texture = Texture2D();
+							TextureData textureData = texture.Create(path, ".jpeg");
+							entities[i].textureData = textureData;
 						}
 						ImGui::EndDragDropTarget();
 					}

@@ -73,7 +73,7 @@ public:
     
     void SetTexture(Shaders shader)
     {
-        texture.Load(m_texturePath, ".jpeg");
+        texture.Load(textureData);
         shader.Set1iUniform("ourTexture", 0);
         texture.Bind(GL_TEXTURE0);
     }
@@ -125,5 +125,6 @@ public:
     bool m_orbitY = false;
     std::string m_texturePath;
     std::vector<float> m_vertices;
+    TextureData textureData;
     Texture2D texture = Texture2D();
 };
