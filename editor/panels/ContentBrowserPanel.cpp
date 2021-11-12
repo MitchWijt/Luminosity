@@ -14,13 +14,13 @@ AssetManager g_assets = AssetManager(g_assetPath);
 ContentBrowserPanel::ContentBrowserPanel()
 {
     Texture2D folderIcon = Texture2D();
-    TextureData texDataFolder = folderIcon.Create("../editor/assets/folder.png", ".png");
-    folderIcon.Load(texDataFolder);
+    folderIcon.Create("../editor/assets/folder.png", ".png");
+    folderIcon.Load();
     m_folderIcon = folderIcon.m_textureId;
     
     Texture2D fileIcon = Texture2D();
-    TextureData texDataFile = fileIcon.Create("../editor/assets/file.png", ".png");
-    fileIcon.Load(texDataFile);
+    fileIcon.Create("../editor/assets/file.png", ".png");
+    fileIcon.Load();
     m_fileIcon = fileIcon.m_textureId;
 }
 
