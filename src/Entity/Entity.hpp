@@ -73,11 +73,16 @@ public:
     
     void SetTexture(Shaders shader)
     {
-        texture.Load(textureData);
-        shader.Set1iUniform("ourTexture", 0);
-        texture.Bind(GL_TEXTURE0);
+        if(!textureID)
+        {
+            texture.Unbind();
+            shader.Set1fUniform("useTexturing", 0);
+        } else {
+            texture.Bind(textureID);
+            shader.Set1fUniform("useTexturing", 1);
+        }
     }
-    
+        
     void OrbitX()
     {
         float xPos = 2.0f * sin(glfwGetTime());
@@ -125,6 +130,6 @@ public:
     bool m_orbitY = false;
     std::string m_texturePath;
     std::vector<float> m_vertices;
-    TextureData textureData;
+    unsigned int textureID = 0;
     Texture2D texture = Texture2D();
 };

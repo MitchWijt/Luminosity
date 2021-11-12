@@ -156,8 +156,10 @@ int main() {
 							const char* path = (const char*)payload->Data;
 							
 							Texture2D texture = Texture2D();
-							TextureData textureData = texture.Create(path, ".jpeg");
-							entities[i].textureData = textureData;
+							texture.Create(path, ".jpeg");
+							texture.Load();
+							
+							entities[i].textureID = texture.m_textureId;
 						}
 						ImGui::EndDragDropTarget();
 					}

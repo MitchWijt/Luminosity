@@ -23,7 +23,7 @@ Texture2D::~Texture2D() {
     stbi_image_free(Texture2D::m_data);
 }
 
-TextureData Texture2D::Create(const std::string& path, const std::string& extension)
+void Texture2D::Create(const std::string& path, const std::string& extension)
 {
     int width;
     int height;
@@ -37,28 +37,25 @@ TextureData Texture2D::Create(const std::string& path, const std::string& extens
     if(!data)
         std::cout << "Failed to load texture at path: " << path << std::endl;
     
-    TextureData textureData;
     textureData.width = width;
     textureData.height = height;
     textureData.colorType = colorType;
     textureData.data = data;
     
     Texture2D::m_data = data;
-    
-    return textureData;
 }
 
-void Texture2D::Load(TextureData textureData)
+void Texture2D::Load()
 {    
     glTexImage2D(GL_TEXTURE_2D, 0, textureData.colorType, textureData.width, textureData.height, 0, textureData.colorType, GL_UNSIGNED_BYTE, textureData.data);
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 
-void Texture2D::Bind(unsigned int unit)
+void Texture2D::Bind(unsigned int textureId)
 {
-    glActiveTexture(unit);
-    glBindTexture(GL_TEXTURE_2D, Texture2D::m_textureId);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 }
 
 void Texture2D::Unbind()
