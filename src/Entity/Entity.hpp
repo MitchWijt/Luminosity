@@ -6,7 +6,7 @@
 #include "../Textures/Texture.hpp"
 
 
-std::vector<float> vertices {
+static std::vector<float> vertices {
     -0.5f, -0.5f, -0.5f,    0.0f, 0.0f,     0.0f, 0.0f, -1.0f,
     0.5f, -0.5f, -0.5f,     1.0f, 0.0f,     0.0f, 0.0f, -1.0f,
     0.5f,  0.5f, -0.5f,     1.0f, 1.0f,     0.0f, 0.0f, -1.0f,
@@ -73,14 +73,8 @@ public:
     
     void SetTexture(Shaders shader)
     {
-        if(!textureID)
-        {
-            texture.Unbind();
-            shader.Set1fUniform("useTexturing", 0);
-        } else {
-            texture.Bind(textureID);
-            shader.Set1fUniform("useTexturing", 1);
-        }
+        texture.Bind(textureID);
+        shader.Set1fUniform("useTexturing", 1);
     }
         
     void OrbitX()
@@ -128,7 +122,6 @@ public:
     float m_rotationDegrees;
     bool m_orbitX = false;
     bool m_orbitY = false;
-    std::string m_texturePath;
     std::vector<float> m_vertices;
     unsigned int textureID = 0;
     Texture2D texture = Texture2D();

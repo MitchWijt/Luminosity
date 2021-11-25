@@ -12,10 +12,10 @@
 #include "../libs/imgui/imgui_impl_glfw.h"
 #include "../libs/imgui/imgui_impl_opengl3.h"
 
+
 std::vector<Entity> entities;
 bool createEntity = false;
 bool isLight = false;
-
 
 void CreateEntity()
 {
@@ -34,30 +34,31 @@ void CreateEntity()
 
 void processInput(GLFWwindow* window)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
+	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
 }
 
 int main() {
-    GLFWwindow* window = createWindow();
-	ContentBrowserPanel contentBrowser = ContentBrowserPanel();
 	
+	GLFWwindow* window = createWindow();
+	ContentBrowserPanel contentBrowser = ContentBrowserPanel();
+		
 	Shaders entityShader = Shaders("Shaders/Object/VertexShader.glsl", "Shaders/Object/FragmentShader.glsl");
 	Shaders lightShader = Shaders("Shaders/Lighting/VertexShader.glsl", "Shaders/Lighting/FragmentShader.glsl");
 
 	RenderApi renderer = RenderApi();
-						
-    while(!glfwWindowShouldClose(window)) {
+	
+	while(!glfwWindowShouldClose(window)) {
 		processInput(window);
 		
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 		
-        glfwPollEvents();
+		glfwPollEvents();
 
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		if(createEntity)
 		{
@@ -68,42 +69,45 @@ int main() {
 			}
 		}
 		
-		if(entities.size() > 0) {
-			for(int i = 0; i < entities.size(); i++)
+		for(auto& entity : entities)
+		{
+			auto i = &entity - &entities[0];
+			
+			if(entity.m_hasLightComponent)
 			{
-				if(entities[i].m_hasLightComponent)
-				{
-					lightShader.Use();
-					entities[i].SetMVPMatrix(lightShader);
-					
-					if(entities[i].m_orbitX)
-						entities[i].OrbitX();
-					if(entities[i].m_orbitY)
-						entities[i].OrbitY();
-					
-					renderer.Draw();
-					
-					char posBuffer[30];
-					sprintf(posBuffer, "dirLights[%d].position", i);
-					
-					char colorBuffer[30];
-					sprintf(colorBuffer, "dirLights[%d].color", i);
-					
-					entityShader.Use();
-					entityShader.Set3fUniform(posBuffer, entities[i].m_transform);
-					entityShader.Set3fUniform(colorBuffer, entities[i].m_color);
-				} else {
-					entityShader.Use();
-					entities[i].SetMVPMatrix(entityShader);
-					entities[i].SetTexture(entityShader);
-					
-					
-					renderer.Draw();
-				}
+				lightShader.Use();
+				entity.SetMVPMatrix(lightShader);
+				
+				if(entity.m_orbitX)
+					entity.OrbitX();
+				if(entity.m_orbitY)
+					entity.OrbitY();
+				
+				renderer.Draw();
+				
+				char posBuffer[30];
+				sprintf(posBuffer, "dirLights[%ld].position", i);
+				
+				char colorBuffer[30];
+				sprintf(colorBuffer, "dirLights[%ld].color", i);
+				
+				entityShader.Use();
+				entityShader.Set3fUniform(posBuffer, entity.m_transform);
+				entityShader.Set3fUniform(colorBuffer, entity.m_color);
+			} else {
+				entityShader.Use();
+				entityShader.Set1fUniform("useTexturing", 0);
+				
+				entity.SetMVPMatrix(entityShader);
+			
+				if(entity.textureID)
+					entity.SetTexture(entityShader);
 				
 				
+				renderer.Draw();
 			}
 		}
+		
 		
 		//UI
 		ImGui::Begin("Sidebar");
@@ -176,12 +180,13 @@ int main() {
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-        glfwSwapBuffers(window);
-    }
-    
+		glfwSwapBuffers(window);
+	}
+	
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
-    glfwTerminate();
-    return -1;
+	glfwTerminate();
+	return -1;
 }
+
