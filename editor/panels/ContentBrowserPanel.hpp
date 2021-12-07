@@ -6,8 +6,6 @@ class ContentBrowserPanel
 {
 public:
     ContentBrowserPanel();
-    
-    // TODO:: Texture process needs to be separated from the asset manager process
     void OnImGuiRender();
     
 private:

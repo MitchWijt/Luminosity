@@ -9,9 +9,12 @@ out vec4 FragColor;
 
 uniform sampler2D ourTexture;
 uniform bool useTexturing;
+uniform bool hasLightComponent;
 uniform vec3 ourColor;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
+
+
 
 struct DirLight {
     vec3 position;
@@ -23,20 +26,25 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 fragPos);
 
 void main()
 {
-    vec3 norm = normalize(normal);
-    vec3 result = CalcDirLight(dirLights[0], norm, fragPos);
-    
-    for(int i = 0; i < 20; i++)
+    if(!hasLightComponent)
     {
-        result += (CalcDirLight(dirLights[i + 1], norm, fragPos));
-    }
-    
-    if(useTexturing)
-    {
-        FragColor = texture(ourTexture, texCoord) * vec4(result, 1.0f);
-    } else
-    {
-        FragColor = vec4((result * ourColor), 1.0f);
+        vec3 norm = normalize(normal);
+        vec3 result = CalcDirLight(dirLights[0], norm, fragPos);
+        
+        for(int i = 0; i < 20; i++)
+        {
+            result += (CalcDirLight(dirLights[i + 1], norm, fragPos));
+        }
+        
+        if(useTexturing)
+        {
+            FragColor = texture(ourTexture, texCoord) * vec4(result, 1.0f);
+        } else
+        {
+            FragColor = vec4((result * ourColor), 1.0f);
+        }
+    } else {
+        FragColor = vec4(1.0);
     }
 }
 
